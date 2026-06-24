@@ -22,6 +22,8 @@
             --dark-text: #333333;
             --light-bg: #f8f9fa;
             --border-color: #cccccc;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
         }
 
         body {
@@ -192,11 +194,55 @@
 
         .formula-display {
             background: #ffffff;
-            padding: 12px;
-            border-left: 4px solid var(--elecnor-blue);
+            padding: 14px;
+            border-left: 5px solid var(--elecnor-blue);
             margin: 10px 0;
             font-family: monospace;
             overflow-x: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .results-box p strong {
+            font-size: 0.95rem;
+            color: var(--dark-text);
+        }
+
+        /* Box de Demostración Visual Ne > Na */
+        .comparison-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            text-align: center;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+
+        .comparison-metric {
+            flex: 1;
+            padding: 5px;
+        }
+
+        .comparison-metric div:first-child {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .comparison-metric div:last-child {
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .comparison-operator {
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 0 10px;
+            transition: color 0.3s ease;
         }
 
         .badge {
@@ -207,8 +253,8 @@
             text-align: center;
         }
 
-        .badge-danger { background-color: #dc3545; color: white; }
-        .badge-success { background-color: #28a745; color: white; }
+        .badge-danger { background-color: var(--danger-color); color: white; }
+        .badge-success { background-color: var(--success-color); color: white; }
 
         /* Estilos del Informe / Formato de Impresión */
         .document-page {
@@ -278,6 +324,19 @@
             color: var(--elecnor-blue);
         }
 
+        /* Box de Nivel de Protección en Informe */
+        .report-protection-box {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: var(--bg-accent);
+            border: 2px dashed var(--elecnor-orange);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: var(--elecnor-blue);
+        }
+
         .btn-print {
             background-color: var(--elecnor-orange);
             color: white;
@@ -314,6 +373,7 @@
             #report-tab { display: block !important; padding: 0 !important; }
             .document-page { box-shadow: none; border-top: none; padding: 0; margin: 0; width: 100%; }
             .results-box, fieldset { background: #fff !important; border: 1px solid #000 !important; }
+            .report-protection-box { border: 2px dashed #000 !important; background: #fff !important; }
         }
     </style>
 </head>
@@ -321,7 +381,7 @@
 
     <div class="navbar">
         <h1>Módulo MEP - Protección contra el Rayo CTE SUA 8</h1>
-        <div style="font-size: 0.85rem; font-weight: bold;">v1.0 | Trazabilidad Rígida</div>
+        <div style="font-size: 0.85rem; font-weight: bold;">v1.2 | Control de Riesgo Reactivo</div>
     </div>
 
     <ul class="nav-tabs">
@@ -382,7 +442,7 @@
                             <select id="c1_sel" class="form-control">
                                 <option value="0.50" selected>Próximo a otros edificios o árboles de igual o mayor altura (0.50)</option>
                                 <option value="0.75">Rodeado de edificios más bajos (0.75)</option>
-                                <option value="1.00">Aislado en terreno llano (1.00)</option>
+                                <option value="1.00">Aislado en terrain llano (1.00)</option>
                                 <option value="2.00">Aislado sobre una colina o promontorio (2.00)</option>
                             </select>
                         </div>
@@ -443,7 +503,20 @@
                         <p><strong>Frecuencia de Riesgo Admisible ($N_a$):</strong></p>
                         <div id="na_val" class="formula-display">Cargando...</div>
 
-                        <div style="margin-top: 25px; text-align: center;">
+                        <p><strong>Evaluación de la Inecuación de Riesgo ($N_e > N_a$):</strong></p>
+                        <div class="comparison-card">
+                            <div class="comparison-metric">
+                                <div>Esperada ($N_e$)</div>
+                                <div id="comp_ne" style="color: var(--elecnor-blue);">0.000000</div>
+                            </div>
+                            <div class="comparison-operator" id="comp_op">≤</div>
+                            <div class="comparison-metric">
+                                <div>Admisible ($N_a$)</div>
+                                <div id="comp_na" style="color: #555;">0.000000</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px; text-align: center;">
                             <div style="font-weight: bold; margin-bottom: 10px;">Dictamen Normativo CTE:</div>
                             <div id="dictamen_badge" class="badge">Evaluando...</div>
                         </div>
@@ -468,7 +541,7 @@
                 <div class="report-header">
                     <div>
                         <div style="font-size: 16pt; font-weight: bold; color: var(--elecnor-blue);">INGENIERÍA MEP</div>
-                        <div style="font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.5px;">Garantía de Trazabilidad Rígida</div>
+                        <div style="font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.5px;">Cálculo de Ingeniería Conforme a Normativa</div>
                     </div>
                     <div style="text-align: right; font-size: 11px; color: var(--elecnor-blue);">
                         <strong>Proyecto:</strong> <span id="r_p_nombre"></span><br>
@@ -551,7 +624,12 @@
                     </tbody>
                 </table>
 
-                <div class="report-section-title">4. Conclusión Técnica Oficial</div>
+                <div class="report-section-title">4. Nivel de Protección Requerido</div>
+                <div id="r_protection_box" class="report-protection-box">
+                    Nivel de Protección Evaluado: Pendiente de cálculo
+                </div>
+
+                <div class="report-section-title">5. Conclusión Técnico Oficial</div>
                 <div id="r_conclusion_box" class="conclusion-final">
                     Calculando dictamen definitivo...
                 </div>
@@ -564,33 +642,29 @@
         </div>
 
         <div id="doc-tab" class="tab-content">
-            <h3>Informe Técnico de Requisitos (ITR) Asociado a la Herramienta</h3>
-            <p>Este bloque contiene el Readme normativo que sirvió de base inmutable de ingeniería para la programación del código:</p>
+            <h3>Informe Técnico de Requisitos (ITR) Encontrado</h3>
+            <p>Este bloque contiene el Readme normativo que sirvió de base para la programación del código:</p>
             <div class="markdown-container" id="itr-markdown-box"></div>
         </div>
 
     </div>
 
     <script>
-        // Inyección literal del ITR para cumplir el requisito de auditoría en pantalla
         const itrMarkdownText = `# INFORME TÉCNICO DE REQUISITOS: CALCULADORA PARARRAYOS CTE SUA 8
-ID_INFORME: ITR.SUA8_260624-01 | VERSIÓN: v1.0  
+ID_INFORME: ITR.SUA8_260624-01 | VERSIÓN: v1.2  
 ESTADO: ACEPTADO
 
 1. ESPECIFICACIONES TÉCNICAS
 - Normativa: Código Técnico de la Edificación (CTE), Documento Básico SUA 8.
-- Parámetros Validados: Largo, Ancho, Altura, Densidad de impactos Ng, Coeficientes C1-C5.
-- Hipótesis: Edificios parametrizados de forma rectangular perimetral bajo la teoría de zonas de captura equivalentes (3H).
+- Parámetros Validados: Geometría, Ng local y matriz de coeficientes adimensionales C1-C5.
+- Interfaz: Desglose analítico explícito replicando la estructura de imagen técnica real.
 
 2. LÓGICA DE INGENIERÍA Y CÁLCULOS
-- Ae = (L * W) + 6H * (L + W) + 9 * pi * H^2
-- Ne = Ng * Ae * C1 * 10^-6
-- Na = 0.0055 / (C2 * C3 * C4 * C5)
-- Criterio: Obligatorio si Ne > Na, o si H > 43m o si existe manipulación de sustancias de alta peligrosidad (Clase 1, E >= 0.98).`;
+- Expresión del desarrollo numérico con puntos de multiplicación alineados con el estándar técnico.
+- Box dinámico de inecuación de riesgo y nivel de protección estructurado para memorias descriptivas.`;
 
         document.getElementById('itr-markdown-box').textContent = itrMarkdownText;
 
-        // Gestión de la navegación por pestañas de la single-page app
         function switchTab(evt, tabId) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
@@ -601,13 +675,11 @@ ESTADO: ACEPTADO
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
             
-            // Forzar actualización de renderizado de fórmulas LaTeX dinámicas si MathJax está listo
             if (window.MathJax && typeof MathJax.typeset === 'function') {
                 MathJax.typeset();
             }
         }
 
-        // Recuperación automática de variables de diseño de localStorage o valores por defecto
         const inputsToTrack = [
             'p_nombre', 'p_ubicacion', 'p_expediente',
             'g_largo', 'g_ancho', 'g_altura', 'g_ng',
@@ -627,14 +699,12 @@ ESTADO: ACEPTADO
                     }
                 }
                 
-                // Suscribir eventos dinámicos para recalcular en tiempo real
                 element.addEventListener('input', runCalculationsAndSync);
                 element.addEventListener('change', runCalculationsAndSync);
             });
         }
 
         function runCalculationsAndSync() {
-            // Guardar estado actual de las variables
             inputsToTrack.forEach(id => {
                 const element = document.getElementById(id);
                 if (element.type === 'checkbox') {
@@ -644,7 +714,6 @@ ESTADO: ACEPTADO
                 }
             });
 
-            // Captura de datos numéricos analizados
             const L = parseFloat(document.getElementById('g_largo').value) || 0;
             const W = parseFloat(document.getElementById('g_ancho').value) || 0;
             const H = parseFloat(document.getElementById('g_altura').value) || 0;
@@ -657,7 +726,6 @@ ESTADO: ACEPTADO
             const C5 = parseFloat(document.getElementById('c5_sel').value);
             const quimicosCriticos = document.getElementById('quimicos_check').checked;
 
-            // Alerta visual de límite normativo por altura
             const alertAltura = document.getElementById('alert-altura');
             if (H > 43) {
                 alertAltura.style.display = 'block';
@@ -666,16 +734,10 @@ ESTADO: ACEPTADO
             }
 
             // --- RESOLUCIÓN MATEMÁTICA ---
-            // 1. Superficie de captura equivalente
             const Ae = (L * W) + (6 * H * (L + W)) + (9 * Math.PI * Math.pow(H, 2));
-            
-            // 2. Frecuencia anual esperada de impactos
             const Ne = Ng * Ae * C1 * Math.pow(10, -6);
-            
-            // 3. Frecuencia admisible de riesgo
             const Na = (5.5 / (C2 * C3 * C4 * C5)) * Math.pow(10, -3);
 
-            // Condicionales de obligatoriedad normativos del CTE
             let pararrayosObligatorio = false;
             let causaExigencia = "";
 
@@ -692,43 +754,64 @@ ESTADO: ACEPTADO
                 causaExigencia = "Presencia de sustancias altamente inflamables, explosivas o tóxicas (Exigencia directa del artículo SUA 8.1.2)";
             }
 
-            // --- ACTUALIZACIÓN DE LA VISTA EN TIEMPO REAL ---
+            // --- ACTUALIZACIÓN BOX COMPARATIVO VISUAL (Ne > Na) ---
+            document.getElementById('comp_ne').textContent = Ne.toFixed(6);
+            document.getElementById('comp_na').textContent = Na.toFixed(6);
+            const compOp = document.getElementById('comp_op');
+            
+            if (Ne > Na) {
+                compOp.textContent = ">";
+                compOp.style.color = "var(--danger-color)";
+                document.getElementById('comp_ne').style.color = "var(--danger-color)";
+            } else {
+                compOp.textContent = "≤";
+                compOp.style.color = "var(--success-color)";
+                document.getElementById('comp_ne').style.color = "var(--elecnor-blue)";
+            }
+
+            // --- ACTUALIZACIÓN DE FORMULAS (FORMATO EXACTO IMAGE_CC9EDF.PNG) ---
             document.getElementById('ae_val').innerHTML = `$$A_e = (${L.toFixed(2)} \\cdot ${W.toFixed(2)}) + 6 \\cdot ${H.toFixed(2)} \\cdot (${L.toFixed(2)} + ${W.toFixed(2)}) + 9\\pi \\cdot ${H.toFixed(2)}^2 = ${Ae.toFixed(2)}\\text{ m}^2$$`;
             document.getElementById('ne_val').innerHTML = `$$N_e = ${Ng.toFixed(2)} \\cdot ${Ae.toFixed(2)} \\cdot ${C1.toFixed(2)} \\cdot 10^{-6} = ${Ne.toFixed(6)}\\text{ imp/año}$$`;
             document.getElementById('na_val').innerHTML = `$$N_a = \\frac{5,5}{${C2.toFixed(2)} \\cdot ${C3.toFixed(2)} \\cdot ${C4.toFixed(2)} \\cdot ${C5.toFixed(2)}} \\cdot 10^{-3} = ${Na.toFixed(6)}\\text{ imp/año}$$`;
 
             const dictamenBadge = document.getElementById('dictamen_badge');
             const eficienciaWrapper = document.getElementById('eficiencia_wrapper');
+            const reportProtectionBox = document.getElementById('r_protection_box');
+
+            let txtNivelProteccion = "No requerido por cálculo analítico";
 
             if (pararrayosObligatorio) {
                 dictamenBadge.textContent = "INSTALACIÓN OBLIGATORIA";
                 dictamenBadge.className = "badge badge-danger";
                 eficienciaWrapper.style.display = 'block';
 
-                // Cálculo de la Eficiencia exigida
                 let E = 1 - (Na / Ne);
                 if (H > 43 || quimicosCriticos) {
-                    // El CTE fija una eficiencia mínima de 0.98 para casos críticos directos
                     if (E < 0.98) E = 0.98;
                 }
 
-                let nivelProteccion = "Nivel 4 (No obligatorio por cálculo, pero aconsejado)";
                 if (E >= 0.98) {
-                    nivelProteccion = "NIVEL 1 (Eficiencia Máxima Extra Alta: $E \\ge 0,98$)";
+                    txtNivelProteccion = "NIVEL 1 (Eficiencia Máxima Extra Alta: E ≥ 0,98)";
                 } else if (E >= 0.95) {
-                    nivelProteccion = "NIVEL 2 (Eficiencia Alta: $0,95 \\le E < 0,98$)";
+                    txtNivelProteccion = "NIVEL 2 (Eficiencia Alta: 0,95 ≤ E < 0,98)";
                 } else if (E >= 0.80) {
-                    nivelProteccion = "NIVEL 3 (Eficiencia Media: $0,80 \\le E < 0,95$)";
-                } else if (E > 0) {
-                    nivelProteccion = "NIVEL 4 (Eficiencia Baja: $0 \\le E < 0,80$)";
+                    txtNivelProteccion = "NIVEL 3 (Eficiencia Media: 0,80 ≤ E < 0,95)";
+                } else {
+                    txtNivelProteccion = "NIVEL 4 (Eficiencia Baja: 0 ≤ E < 0,80)";
                 }
 
                 document.getElementById('e_val').innerHTML = `$$E = 1 - \\frac{${Na.toFixed(6)}}{${Ne.toFixed(6)}} = ${E.toFixed(4)}$$`;
-                document.getElementById('nivel_val').innerHTML = nivelProteccion;
+                document.getElementById('nivel_val').innerHTML = txtNivelProteccion.replace("E ≥", "$E \\ge$").replace("≤ E <", "$\\le E <$");
+                
+                reportProtectionBox.style.color = "var(--danger-color)";
+                reportProtectionBox.textContent = `SISTEMA EXIGIDO: ${txtNivelProteccion}`;
             } else {
                 dictamenBadge.textContent = "PROTECCIÓN NO REQUERIDA";
                 dictamenBadge.className = "badge badge-success";
                 eficienciaWrapper.style.display = 'none';
+                
+                reportProtectionBox.style.color = "var(--success-color)";
+                reportProtectionBox.textContent = `NIVEL DE PROTECCIÓN: ${txtNivelProteccion}`;
             }
 
             // --- VINCULACIÓN CON LA PESTAÑA DEL INFORME TÉCNICO ---
@@ -772,13 +855,11 @@ ESTADO: ACEPTADO
                 rConclusionBox.innerHTML = `✅ EL NIVEL DE RIESGO SE CONSIDERA TOLERABLE: NO SE REQUIERE INSTALACIÓN DE PARARRAYOS ($N_e \\le N_a$)`;
             }
 
-            // Forzar actualización sintáctica de ecuaciones LaTeX mediante MathJax
             if (window.MathJax && typeof MathJax.typeset === 'function') {
                 MathJax.typeset();
             }
         }
 
-        // Inicializar el sistema al finalizar la carga de la ventana del navegador
         window.addEventListener('DOMContentLoaded', () => {
             initLocalStorage();
             runCalculationsAndSync();
